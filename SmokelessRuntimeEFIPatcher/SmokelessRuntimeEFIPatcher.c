@@ -405,7 +405,32 @@ EFI_STATUS EFIAPI SREPEntry(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syst
         case LOAD_FV:
             AsciiSPrint(Log,512,"%a","Executing Load from FV\n\r");    
             LogToFile(LogFile,Log);
-            Status = LoadFV(ImageHandle, next->Name, &ImageInfo, &AppImageHandle, EFI_SECTION_PE32);
+
+            // Check if a pre-signed version exists on disk, load that instead
+            EFI_FILE *SignedCheck;
+            BOOLEAN SignedExists = FALSE;
+            if (Root->Open(Root, &SignedCheck, L"SetupUtilityApp_signed.efi", EFI_FILE_MODE_READ, 0) == EFI_SUCCESS)
+            {
+                SignedCheck->Close(SignedCheck);
+                SignedExists = TRUE;
+                AsciiSPrint(Log,512,"%a","Found signed SetupUtilityApp_signed.efi, loading from disk\n\r");
+                LogToFile(LogFile,Log);
+                Status = LoadFS(ImageHandle, "SetupUtilityApp_signed.efi", &ImageInfo, &AppImageHandle);
+            }
+            else
+            {
+                // No signed file yet — load from FV, export raw for signing
+                AsciiSPrint(Log,512,"%a","No signed file found, loading from FV and exporting\n\r");
+                LogToFile(LogFile,Log);
+                Status = LoadFV(ImageHandle, next->Name, &ImageInfo, &AppImageHandle, EFI_SECTION_PE32);
+
+                // Export the raw FV image to disk so you can sign it on Linux
+                SaveBufferToFile(Root, L"SetupUtilityApp_unsigned.efi",
+                                 (UINT8 *)ImageInfo->ImageBase, ImageInfo->ImageSize);
+                AsciiSPrint(Log,512,"%a","Exported SetupUtilityApp_unsigned.efi — sign it then reboot\n\r");
+                LogToFile(LogFile,Log);
+            }
+
             AsciiSPrint(Log,512,"Loaded Image %r -> %x\n\r", Status, ImageInfo->ImageBase);
             LogToFile(LogFile,Log);
             break;
