@@ -255,6 +255,39 @@ EFI_STATUS SaveBufferToFile(EFI_FILE *Root, CHAR16 *FileName, UINT8 *Buffer, UIN
     return Status;
 }
 
+// AFTER
+EFI_STATUS ReadFileFromRoot(EFI_FILE *Root, CHAR8 *FileName, UINT8 **Buffer, UINTN *BufferSize)
+{
+    EFI_STATUS Status;
+    EFI_FILE *File;
+    EFI_GUID gFileInfo = EFI_FILE_INFO_ID;
+    EFI_FILE_INFO *FileInfo = NULL;
+    UINTN FileInfoSize = 0;
+    CHAR16 FileName16[255] = {0};
+
+    UnicodeSPrint(FileName16, sizeof(FileName16), L"%a", FileName);
+
+    Status = Root->Open(Root, &File, FileName16, EFI_FILE_MODE_READ, 0);
+    if (EFI_ERROR(Status))
+        return Status;
+
+    Status = File->GetInfo(File, &gFileInfo, &FileInfoSize, NULL);
+    if (Status == EFI_BUFFER_TOO_SMALL)
+    {
+        FileInfo = AllocatePool(FileInfoSize);
+        Status = File->GetInfo(File, &gFileInfo, &FileInfoSize, FileInfo);
+    }
+    if (EFI_ERROR(Status)) { File->Close(File); return Status; }
+
+    *BufferSize = FileInfo->FileSize;
+    *Buffer = AllocateZeroPool(*BufferSize);
+    FreePool(FileInfo);
+
+    Status = File->Read(File, BufferSize, *Buffer);
+    File->Close(File);
+    return Status;
+}
+
 EFI_STATUS LoadFromRoot(EFI_FILE *Root, EFI_HANDLE ImageHandle, CHAR8 *FileName, EFI_LOADED_IMAGE_PROTOCOL **ImageInfo, EFI_HANDLE *AppImageHandle)
 {
     EFI_STATUS Status;
