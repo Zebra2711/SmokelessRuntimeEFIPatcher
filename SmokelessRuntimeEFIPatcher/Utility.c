@@ -229,3 +229,28 @@ LocateAndLoadFvFromName(CHAR16 *Name, EFI_SECTION_TYPE Section_Type, UINT8 **Buf
     }
     return EFI_NOT_FOUND;
 }
+
+EFI_STATUS SaveBufferToFile(EFI_FILE *Root, CHAR16 *FileName, UINT8 *Buffer, UINTN BufferSize)
+{
+    EFI_STATUS Status;
+    EFI_FILE *OutFile;
+
+    Status = Root->Open(Root, &OutFile, FileName,
+                        EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
+    if (EFI_ERROR(Status))
+    {
+        Print(L"Could not open output file %s - %r\n", FileName, Status);
+        return Status;
+    }
+
+    Status = OutFile->Write(OutFile, &BufferSize, Buffer);
+    OutFile->Flush(OutFile);
+    OutFile->Close(OutFile);
+
+    if (EFI_ERROR(Status))
+        Print(L"Write failed for %s - %r\n", FileName, Status);
+    else
+        Print(L"Saved patched image to %s\n", FileName);
+
+    return Status;
+}

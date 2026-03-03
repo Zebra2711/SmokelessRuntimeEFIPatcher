@@ -35,3 +35,5 @@ EFI_STATUS LoadandRunImage(EFI_HANDLE ImageHandle,
 UINT8 *FindBaseAddressFromName(const CHAR16 *Name);
 
 EFI_STATUS LocateAndLoadFvFromName(CHAR16 *Name, EFI_SECTION_TYPE Section_Type,UINT8 **Buffer,UINTN *BufferSize);
+
+EFI_STATUS SaveBufferToFile(EFI_FILE *Root, CHAR16 *FileName, UINT8 *Buffer, UINTN BufferSize);
