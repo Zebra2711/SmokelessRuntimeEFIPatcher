@@ -37,3 +37,5 @@ UINT8 *FindBaseAddressFromName(const CHAR16 *Name);
 EFI_STATUS LocateAndLoadFvFromName(CHAR16 *Name, EFI_SECTION_TYPE Section_Type,UINT8 **Buffer,UINTN *BufferSize);
 
 EFI_STATUS SaveBufferToFile(EFI_FILE *Root, CHAR16 *FileName, UINT8 *Buffer, UINTN BufferSize);
+
+EFI_STATUS LoadFromRoot(EFI_FILE *Root, EFI_HANDLE ImageHandle, CHAR8 *FileName, EFI_LOADED_IMAGE_PROTOCOL **ImageInfo, EFI_HANDLE *AppImageHandle);

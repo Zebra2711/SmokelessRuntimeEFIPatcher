@@ -397,7 +397,8 @@ EFI_STATUS EFIAPI SREPEntry(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syst
         case LOAD_FS:
             AsciiSPrint(Log,512,"%a","Executing Load from FS\n\r");    
             LogToFile(LogFile,Log);
-            Status = LoadFS(ImageHandle, next->Name, &ImageInfo, &AppImageHandle);
+            // Status = LoadFS(ImageHandle, next->Name, &ImageInfo, &AppImageHandle);
+            Status = LoadFromRoot(Root, ImageHandle, "SetupUtilityApp_signed.efi", &ImageInfo, &AppImageHandle);
             AsciiSPrint(Log,512,"Loaded Image %r -> %x\n\r", Status, ImageInfo->ImageBase);
              LogToFile(LogFile,Log);
             // AsciiSPrint(Log,512,"\t FileName %a\n\r", next->ARG2);

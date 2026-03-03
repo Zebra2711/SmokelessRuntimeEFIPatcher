@@ -254,3 +254,31 @@ EFI_STATUS SaveBufferToFile(EFI_FILE *Root, CHAR16 *FileName, UINT8 *Buffer, UIN
 
     return Status;
 }
+
+EFI_STATUS LoadFromRoot(EFI_FILE *Root, EFI_HANDLE ImageHandle, CHAR8 *FileName, EFI_LOADED_IMAGE_PROTOCOL **ImageInfo, EFI_HANDLE *AppImageHandle)
+{
+    EFI_STATUS Status;
+    UINT8 *Buffer = NULL;
+    UINTN BufferSize = 0;
+
+    Status = ReadFileFromRoot(Root, FileName, &Buffer, &BufferSize);
+    if (EFI_ERROR(Status))
+    {
+        Print(L"Could not read %a from root - %r\n", FileName, Status);
+        return Status;
+    }
+
+    Status = gBS->LoadImage(FALSE, ImageHandle, NULL, Buffer, BufferSize, AppImageHandle);
+    FreePool(Buffer);
+
+    if (EFI_ERROR(Status))
+    {
+        Print(L"Could not load image from buffer - %r\n", Status);
+        return Status;
+    }
+
+    Status = gBS->OpenProtocol(*AppImageHandle, &gEfiLoadedImageProtocolGuid,
+                               (VOID **)ImageInfo, ImageHandle, NULL,
+                               EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+    return Status;
+}
