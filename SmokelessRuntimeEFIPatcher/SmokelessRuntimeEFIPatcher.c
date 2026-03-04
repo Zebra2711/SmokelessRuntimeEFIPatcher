@@ -404,7 +404,7 @@ EFI_STATUS EFIAPI SREPEntry(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syst
             // AsciiSPrint(Log,512,"\t FileName %a\n\r", next->ARG2);
             break;
         case LOAD_FV:
-            AsciiSPrint(Log,512,"%a","Executing Load from FV\n\r");    
+            AsciiSPrint(Log,512,"%a","Executing Load from FV\n\r");
             LogToFile(LogFile,Log);
 
             // Check if a pre-signed version exists on disk, load that instead
@@ -463,7 +463,7 @@ EFI_STATUS EFIAPI SREPEntry(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syst
                 {
                     AsciiSPrint(Log,512,"%a","No Patter Found\n\r");
                     LogToFile(LogFile,Log);
-                    //goto cleanup;
+                    goto cleanup;
                 break;
                 }
             }
@@ -494,7 +494,7 @@ EFI_STATUS EFIAPI SREPEntry(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syst
             break;
         }
     }
-//cleanup:
+cleanup:
     for (next = Start; next != NULL; next = next->next)
     {
         if (next->Name_Dyn_Alloc)
@@ -519,9 +519,9 @@ EFI_STATUS EFIAPI SREPEntry(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syst
         next = next->next;
         FreePool(tmp);
     }
+    FindBaseAddressFromName(L"H2OFormBrowserDxe");
+    UINT8 *Buffer = NULL;
+    UINTN BufferSize = 0;
+    LocateAndLoadFvFromName(L"SetupUtilityApp", EFI_SECTION_PE32, &Buffer, &BufferSize);
     return EFI_SUCCESS;
-    // FindBaseAddressFromName(L"H2OFormBrowserDxe");
-    // UINT8 *Buffer = NULL;
-    // UINTN BufferSize = 0;
-    // LocateAndLoadFvFromName(L"SetupUtilityApp", EFI_SECTION_PE32, &Buffer, &BufferSize);
 }
