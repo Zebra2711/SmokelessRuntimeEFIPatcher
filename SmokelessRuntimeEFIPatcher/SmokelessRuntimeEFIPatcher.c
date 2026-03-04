@@ -485,7 +485,7 @@ EFI_STATUS EFIAPI SREPEntry(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *Syst
             // PrintDump(next->ARG4+10,ImageInfo->ImageBase + next->ARG3 -5 );
             break;
         case EXEC:
-            Exec(&AppImageHandle);
+            Status = Exec(&AppImageHandle);
             AsciiSPrint(Log,512,"%a","EXEC %r\n\r", Status);
             LogToFile(LogFile,Log);
             break;
